@@ -14,13 +14,11 @@ html {
 }
 
 body {
-  font-family: "Poppins", sans-serif;
-  color: var(--color-grey-700);
-
-  transition: color 0.3s, background-color 0.3s;
-  min-height: 100vh;
-  line-height: 1.5;
-  font-size: 1.6rem;
-  background-color: #1e1e2f;
-  color: #FFAB73;
+  font-family: "Arial", sans-serif;
+  color: #e0e0e0;
+  background: linear-gradient(to bottom, #1e1e2f, #14141f);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
