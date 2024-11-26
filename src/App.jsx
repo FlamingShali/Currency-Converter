@@ -1,29 +1,6 @@
 import styled from "styled-components";
 import pulsingCoin from "./../public/images/pulsing_coin.gif";
-
-const NavBar = styled.nav`
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 60px;
-  background: rgba(30, 30, 47, 0.9);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  z-index: 1000;
-`;
-
-const StyledNavLogo = styled.div`
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #89cff0;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
-`;
-function NavLogo() {
-  return <StyledNavLogo>Currency Application</StyledNavLogo>;
-}
+import { NavBar } from "./components/NavBar";
 
 const Header = styled.h1`
   font-size: 2rem;
@@ -73,9 +50,8 @@ const GifImage = styled.img``;
 function App() {
   return (
     <>
-      <NavBar>
-        <NavLogo />
-      </NavBar>
+      <NavBar />
+
       <Container>
         <MainHeader />
         <ConverterBox></ConverterBox>
