@@ -9,4 +9,3 @@ const StyledNavLogo = styled.div`
 export function NavLogo() {
   return <StyledNavLogo>Currency Application</StyledNavLogo>;
 }
--
