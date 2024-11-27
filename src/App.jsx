@@ -7,7 +7,7 @@ import { NavBar } from "./components/NavBar";
 const Header = styled.h1`
   font-size: 3rem;
   margin-bottom: 30px;
-  color: #89cff0;
+  color: #fff;
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 `;
 
@@ -18,41 +18,39 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(
+    to right,
+    #1e3c72,
+    #2a5298
+  ); /* Gradient background */
 `;
 
 const CurrencyContainer = styled.div`
   display: flex;
   flex-direction: column;
-  border: 2px solid purple;
-  font-size: 2rem;
+  font-size: 1.8rem;
   width: 50vh;
-  height: 5vh;
-`;
-
-const ConverterBox = styled.div`
-  background: rgba(44, 47, 51, 0.8);
-  border-radius: 15px;
-  padding: 30px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-  width: 100%;
-  max-width: 500px;
-`;
-
-const Main = styled.main`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const Field = styled.div`
-  margin-bottom: 20px;
+  margin-top: 20px;
 `;
 
 const StyledCurrencyBox = styled.div`
   display: flex;
 `;
 
-const GifImage = styled.img``;
+const StyledInput = styled.input`
+  padding: 15px;
+  border: 2px solid #fff;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  transition: background 0.3s ease;
+  &:focus {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: #89cff0;
+  }
+`;
 
 function App() {
   const fetchRates = async ({ queryKey }) => {
@@ -63,6 +61,21 @@ function App() {
     if (!res.ok) throw new Error("Error fetching data");
     return res.json();
   };
+
+  const StyledSelect = styled.select`
+    padding: 15px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    transition: background 0.3s ease;
+    &:focus {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: #89cff0;
+    }
+  `;
 
   const [fromCurr, setFromCurr] = useState("USD");
   const [toCurr, setToCurr] = useState("EUR");
@@ -86,13 +99,13 @@ function App() {
         <StyledCurrencyBox>
           <img src={pulsingCoin} width={100} height={100} />
           <CurrencyContainer>
-            <input
+            <StyledInput
               type="text"
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
               disabled={isLoading}
             />
-            <select
+            <StyledSelect
               value={fromCurr}
               onChange={(e) => setFromCurr(e.target.value)}
               disabled={isLoading}
@@ -101,8 +114,8 @@ function App() {
               <option value="EUR">EUR</option>
               <option value="CAD">CAD</option>
               <option value="INR">INR</option>
-            </select>
-            <select
+            </StyledSelect>
+            <StyledSelect
               value={toCurr}
               onChange={(e) => setToCurr(e.target.value)}
               disabled={isLoading}
@@ -111,7 +124,7 @@ function App() {
               <option value="EUR">EUR</option>
               <option value="CAD">CAD</option>
               <option value="INR">INR</option>
-            </select>
+            </StyledSelect>
             <p>
               {convertedAmount} {toCurr}
             </p>
