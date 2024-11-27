@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-
 import styled from "styled-components";
 import pulsingCoin from "./../public/images/pulsing_coin.gif";
 import { NavBar } from "./components/NavBar";
@@ -12,12 +11,8 @@ const Header = styled.h1`
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 `;
 
-function MainHeader() {
-  return <Header>Currency Converter</Header>;
-}
-
 const Container = styled.div`
-  width: 100vh;
+  width: 100vw;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -60,52 +55,34 @@ const StyledCurrencyBox = styled.div`
 const GifImage = styled.img``;
 
 function App() {
-  const fetchRates = async () => {
-    const res = await fetch("https://api.frankfurter.app/latest?base=USD");
-    if (!res.ok) throw new Error("An Error has appeared. Please reload page");
+  const fetchRates = async ({ queryKey }) => {
+    const [, from, to, amount] = queryKey;
+    const res = await fetch(
+      `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`
+    );
+    if (!res.ok) throw new Error("Error fetching data");
     return res.json();
   };
-
-  function CurrencyConverter() {
-    const { data, isLoading, error } = useQuery(["currencyRates"], fetchRates);
-
-    if (isLoading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error.message}</p>;
-    console.log(data);
-    return (
-      <div>
-        <h1>Currency Rates</h1>
-      </div>
-    );
-  }
 
   const [fromCurr, setFromCurr] = useState("USD");
   const [toCurr, setToCurr] = useState("EUR");
   const [amount, setAmount] = useState(1);
-  const [converted, setConverted] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(
-    function () {
-      async function convert() {
-        setIsLoading(true);
-        const res = await fetch(
-          `https://api.frankfurter.app/latest?amount=${amount}&from=${fromCurr}&to=${toCurr}`
-        );
-        const data = await res.json();
-        setConverted(data.rates[toCurr]);
-        setIsLoading(false);
-      }
-      if (fromCurr === toCurr) return setConverted(amount);
-      convert();
-    },
-    [amount, fromCurr, toCurr]
+  const { data, isLoading, error } = useQuery(
+    ["currencyRates", fromCurr, toCurr, amount],
+    fetchRates
   );
+
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  const convertedAmount = data ? data.rates[toCurr] * amount : 0;
+
   return (
     <>
       <NavBar />
       <Container>
-        <MainHeader />
+        <Header>Currency Converter</Header>
         <StyledCurrencyBox>
           <img src={pulsingCoin} width={100} height={100} />
           <CurrencyContainer>
@@ -136,7 +113,7 @@ function App() {
               <option value="INR">INR</option>
             </select>
             <p>
-              {converted} {toCurr}
+              {convertedAmount} {toCurr}
             </p>
           </CurrencyContainer>
         </StyledCurrencyBox>
