@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import styled from "styled-components";
 import pulsingCoin from "./../public/images/pulsing_coin.gif";
@@ -59,6 +60,25 @@ const StyledCurrencyBox = styled.div`
 const GifImage = styled.img``;
 
 function App() {
+  const fetchRates = async () => {
+    const res = await fetch("https://api.frankfurter.app/latest?base=USD");
+    if (!res.ok) throw new Error("An Error has appeared. Please reload page");
+    return res.json();
+  };
+
+  function CurrencyConverter() {
+    const { data, isLoading, error } = useQuery(["currencyRates"], fetchRates);
+
+    if (isLoading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error.message}</p>;
+    console.log(data);
+    return (
+      <div>
+        <h1>Currency Rates</h1>
+      </div>
+    );
+  }
+
   const [fromCurr, setFromCurr] = useState("USD");
   const [toCurr, setToCurr] = useState("EUR");
   const [amount, setAmount] = useState(1);
