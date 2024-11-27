@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import pulsingCoin from "./../public/images/pulsing_coin.gif";
 import { NavBar } from "./components/NavBar";
 
 const AppContainer = styled.div`
@@ -82,24 +81,47 @@ const ConvertButton = styled.button`
   }
 `;
 
+const fetchRates = async ({ queryKey }) => {
+  const [, from, to, amount] = queryKey;
+  const res = await fetch(
+    `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`
+  );
+  if (!res.ok) throw new Error("Error fetching rates");
+  return res.json();
+};
+
+// Fetch all currencies
+const fetchCurrencies = async () => {
+  const res = await fetch("https://api.frankfurter.app/currencies");
+  if (!res.ok) throw new Error("Error fetching currencies");
+  return res.json();
+};
+
 function App() {
-  const fetchRates = async () => {
-    const res = await fetch("https://api.frankfurter.app/latest");
-    if (!res.ok) throw new Error("Failed to fetch rates");
-    return res.json();
-  };
-
-  const { data, isLoading, error } = useQuery(["currencyRates"], fetchRates);
-
-  const [amount, setAmount] = useState(1);
   const [fromCurr, setFromCurr] = useState("USD");
   const [toCurr, setToCurr] = useState("EUR");
+  const [amount, setAmount] = useState(1);
 
-  const rates = data?.rates || {};
-  const currencies = Object.keys(rates);
+  // Fetch currencies
+  const { data: currencies, isLoading: isCurrenciesLoading } = useQuery(
+    ["currencies"],
+    fetchCurrencies
+  );
 
-  const convertedAmount =
-    fromCurr === toCurr ? amount : (amount * rates[toCurr]) / rates[fromCurr];
+  // Fetch conversion rates
+  const { data, isLoading, error } = useQuery(
+    ["currencyRates", fromCurr, toCurr, amount],
+    fetchRates
+  );
+
+  const convertedAmount = data?.rates[toCurr] || 0;
+
+  if (isCurrenciesLoading || isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  function onAmountHandler(e) {
+    setAmount(Number(e.target.value));
+  }
 
   return (
     <AppContainer>
@@ -118,7 +140,7 @@ function App() {
               <StyledInput
                 type="number"
                 value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                onChange={onAmountHandler}
               />
             </Field>
             <Field>
@@ -127,9 +149,9 @@ function App() {
                 value={fromCurr}
                 onChange={(e) => setFromCurr(e.target.value)}
               >
-                {currencies.map((curr) => (
-                  <option key={curr} value={curr}>
-                    {curr}
+                {Object.entries(currencies).map(([code, name]) => (
+                  <option key={code} value={code}>
+                    {code} - {name}
                   </option>
                 ))}
               </StyledSelect>
@@ -140,9 +162,9 @@ function App() {
                 value={toCurr}
                 onChange={(e) => setToCurr(e.target.value)}
               >
-                {currencies.map((curr) => (
-                  <option key={curr} value={curr}>
-                    {curr}
+                {Object.entries(currencies).map(([code, name]) => (
+                  <option key={code} value={code}>
+                    {code} - {name}
                   </option>
                 ))}
               </StyledSelect>
@@ -150,7 +172,11 @@ function App() {
             <ConvertButton>Convert</ConvertButton>
             <Field>
               <p>
-                {amount} {fromCurr} = {convertedAmount.toFixed(2)} {toCurr}
+                {amount === 0
+                  ? "Type how much money do you want to convert"
+                  : `${amount} ${fromCurr} = ${convertedAmount.toFixed(
+                      2
+                    )} ${toCurr}`}
               </p>
             </Field>
           </>
